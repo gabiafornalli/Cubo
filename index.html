@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cubo Mágico Explodido 3D</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            perspective: 1200px;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Cena principal que rotaciona */
+        .scene {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-30deg) rotateY(-45deg);
+        }
+
+        /* Container de cada cubinho individual */
+        .small-cube {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            transform-style: preserve-3d;
+            top: 105px; /* Centralização base */
+            left: 105px;
+        }
+
+        /* Faces dos cubinhos menores */
+        .face {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: #ffffff; /* Branco sólido, sem transparência */
+            border: 2px solid #c0baba; /* Arestas cinzas */
+            box-sizing: border-box;
+        }
+
+        /* Posicionamento das faces de cada cubinho para formar o 3D */
+        .front  { transform: rotateY(0deg) translateZ(45px); }
+        .back   { transform: rotateY(180deg) translateZ(45px); }
+        .right  { transform: rotateY(90deg) translateZ(45px); }
+        .left   { transform: rotateY(-90deg) translateZ(45px); }
+        .top    { transform: rotateX(90deg) translateZ(45px); }
+        .bottom { transform: rotateX(-90deg) translateZ(45px); }
+
+    </style>
+</head>
+<body>
+
+    <div class="scene" id="scene">
+        </div>
+
+    <script>
+        const scene = document.getElementById('scene');
+        const gap = 100; // Espaçamento entre o centro de cada cubinho
+
+        // Loop para criar a matriz 3x3x3 (27 cubinhos)
+        for (let x = -1; x <= 1; x++) {
+            for (let y = -1; y <= 1; y++) {
+                for (let z = -1; z <= 1; z++) {
+                    const cube = document.createElement('div');
+                    cube.className = 'small-cube';
+                    
+                    // Posiciona cada cubinho no espaço (X, Y, Z)
+                    cube.style.transform = `translate3d(${x * gap}px, ${y * gap}px, ${z * gap}px)`;
+
+                    // Adiciona as 6 faces ao cubinho
+                    const faces = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+                    faces.forEach(faceName => {
+                        const face = document.createElement('div');
+                        face.className = `face ${faceName}`;
+                        cube.appendChild(face);
+                    });
+
+                    scene.appendChild(cube);
+                }
+            }
+        }
+
+        // Lógica de rotação com o mouse
+        let isDragging = false;
+        let mouseX = 0, mouseY = 0;
+        let rotateX = -30, rotateY = -45;
+
+        document.addEventListener('mousedown', e => { isDragging = true; mouseX = e.clientX; mouseY = e.clientY; });
+        document.addEventListener('mouseup', () => isDragging = false);
+        
+        document.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            
+            let deltaX = e.clientX - mouseX;
+            let deltaY = e.clientY - mouseY;
+
+            rotateY += deltaX * 0.5;
+            rotateX -= deltaY * 0.5;
+
+            scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+    </script>
+</body>
+</html>
